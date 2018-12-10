@@ -11,14 +11,14 @@ class Grid {
         const colGroupClasses = ['col_g_left', 'col_g_center', 'col_g_right']
         const $cells = matrix.map(rowValues =>
             rowValues.map((cellValue, colIndex) => {
-                return $('<span>')
+                return $('<span />')
                     .addClass(colGroupClasses[colIndex % 3])
                     .text(cellValue)
             })
         )
 
         const $divArray = $cells.map(($spanArray, rowIndex) => {
-            return $('<div>')
+            return $('<div />')
                 .addClass('row')
                 .addClass(rowGroupClasses[rowIndex % 3])
                 .append($spanArray)
