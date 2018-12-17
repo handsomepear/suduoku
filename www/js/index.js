@@ -44,15 +44,27 @@
 /* 0 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	const Toolkit = __webpack_require__(1)
+	const Grid = __webpack_require__(1)
 
-	class Grid {
+	const grid =  new Grid($('#container'))
+	grid.build()
+	grid.layout()
+
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	// 生成九宫格
+	const Toolkit = __webpack_require__(2)
+
+	module.exports = class Grid {
 	    constructor(container) {
 	        this._$container = container
 	    }
 
 	    build() {
-	        const matrix = toolkit.makeMatrix()
+	        const matrix = Toolkit.matrix.makeMatrix()
 	        const rowGroupClasses = ['row_g_top', 'row_g_middle', 'row_g_bottom']
 	        const colGroupClasses = ['col_g_left', 'col_g_center', 'col_g_right']
 	        const $cells = matrix.map(rowValues =>
@@ -83,13 +95,8 @@
 	    }
 	}
 
-	const grid =  new Grid($('#container'))
-	grid.build()
-	grid.layout()
-
-
 /***/ }),
-/* 1 */
+/* 2 */
 /***/ (function(module, exports) {
 
 	// 工具包
