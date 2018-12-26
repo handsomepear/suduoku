@@ -2,6 +2,7 @@
 
 #### 项目目录
 
+```
 |-- sudoku
     |-- README.md
     |-- gulpfile.js
@@ -21,3 +22,4 @@
     |       |-- popupnumbers.js     处理弹出的操作面板
     |-- less
         |-- main.less
+```

@@ -57,6 +57,7 @@
 
 	// 生成九宫格
 	const Toolkit = __webpack_require__(2)
+	const Generator = __webpack_require__(3)
 
 	module.exports = class Grid {
 	    constructor(container) {
@@ -64,6 +65,10 @@
 	    }
 
 	    build() {
+	        const genarator = new Generator()
+	        console.log(genarator)
+
+
 	        const matrix = Toolkit.matrix.makeMatrix()
 	        const rowGroupClasses = ['row_g_top', 'row_g_middle', 'row_g_bottom']
 	        const colGroupClasses = ['col_g_left', 'col_g_center', 'col_g_right']
@@ -115,7 +120,7 @@
 	    makeMatrix(v = 0) {
 	        // return Array.from({ length: 9 }).map(() => makeRow(v))
 	        // Array.from 是一个将伪数组生成数组的一个方法 第二个参数是一个map函数 下面写法与上面等价 效率更高
-	        return Array.from({length: 9}, () => this.makeRow(v))
+	        return Array.from({ length: 9 }, () => this.makeRow(v))
 	    },
 
 	    /**
@@ -129,6 +134,26 @@
 	            ;[array[i], array[j]] = [array[j], array[i]]
 	        }
 	        return array
+	    },
+	    /**
+	     * 检查置顶位置是否可填写数字 n
+	     * @param matrix 数字数据
+	     * @param n 填什么数字
+	     * @param rowIndex
+	     * @param colIndex
+	     * @returns {boolean}
+	     */
+	    checkFillAble(matrix, n, rowIndex, colIndex) {
+	        const row = matrix[rowIndex]
+	        const column = this.makeRow().map((v, i) => matrix[i][colIndex])
+	        const { boxIndex } = boxToolkit.convertToBoxIndex(rowIndex, colIndex)
+	        const box = boxToolkit.getBoxCells(matrix, boxIndex)
+	        for( let i = 0; i < 9; i++) {
+	            if(row[i] === n || column[i] === n || box[i] === n) {
+	                return false
+	            }
+	        }
+	        return true
 	    }
 	}
 
@@ -136,7 +161,32 @@
 	 * 宫坐标系工具
 	 */
 	const boxToolkit = {
-	    // TODO:
+	    getBoxCells(matrix, boxIndex) {
+	        const startRowIndex = Math.floor(boxIndex / 3) * 3
+	        const startColIndex = boxIndex % 3 * 3
+	        const result = []
+	        for (let cellIndex = 0; cellIndex < 9; cellIndex++) {
+	            const rowIndex = startRowIndex + Math.floor(cellIndex / 3)
+	            const colIndex = startColIndex + cellIndex % 3
+	            result.push(matrix[rowIndex][colIndex])
+	        }
+	        return result
+	    },
+
+	    convertToBoxIndex(rowIndex, colIndex) {
+	        return {
+	            boxIndex: Math.floor(rowIndex / 3) * 3 + Math.floor(colIndex / 3),
+	            cellIndex: rowIndex % 3 * 3 + colIndex % 3
+	        }
+	    },
+
+	    convertFromBoxIndex(boxIndex, cellIndex) {
+	        return {
+	            rowIndex: Math.floor(boxIndex / 3) * 3 + Math.floor(cellIndex / 3),
+	            colIndex: boxIndex % 3 * 3 + cellIndex % 3
+	        }
+	    }
+
 	}
 
 
@@ -158,6 +208,72 @@
 	        return boxToolkit
 	    }
 	}
+
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	// 生成数独解决方案
+	const Toolkit = __webpack_require__(2)
+
+	class Generator {
+	    generator(){
+	        while(!this.internalGenerator()) {
+	            console.warn('try again')
+	        }
+	    }
+	    internalGenerator() {
+	        this.matrix = Toolkit.matrix.makeMatrix()
+	        this.orders = Toolkit.matrix.makeMatrix()
+	            .map(row => row.map((v, i) => i)) // 填数字
+	            .map(row => Toolkit.matrix.shuffle(row)) // 打乱
+	        //Toolkit.matrix.makeRow().every(n => )
+	        for (let n = 1; n <= 9; n++) {
+	            if(!this.fillNumber(n)) {
+	                return false
+	            }
+	        }
+	        return true
+	    }
+
+	    fillNumber(n) {
+	        return this.fillRow(n, 0)
+	    }
+
+	    fillRow(n, rowIndex) {
+	        if (rowIndex > 8) {
+	            return true
+	        }
+	        const row = this.matrix[rowIndex]
+	        // 随机选择列
+	        const orders = this.orders[rowIndex]
+	        for (let i = 0; i < 9; i++) {
+	            const colIndex = orders[i]
+	            // 如果这个位置已经有值 跳过
+	            if (row[colIndex]) {
+	                continue
+	            }
+	            // 检查这个位置是否可以填 n
+	            if (!Toolkit.matrix.checkFillAble(this.matrix, n, rowIndex, colIndex)) {
+	                continue
+	            }
+	            row[colIndex] = n
+	            // 如果没填进去 就继续去寻找当前行的下一个位置
+	            if (!this.fillRow(n, rowIndex + 1)) {
+	                row[colIndex] = 0
+	                continue
+	            }
+	            return true
+	        }
+	        return false // 填写失败
+	    }
+	}
+
+	const generator = new Generator()
+	generator.generator()
+	console.log(generator.matrix)
+	module.exports = Generator
 
 
 /***/ })

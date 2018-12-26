@@ -79,7 +79,7 @@ body > * {
   float: left;
   width: 25%;
   height: 3rem;
-  font-family: "微软雅黑";
+  font-family: "微软雅黑", serif;
   font-size: 1.3rem;
   color: #fff;
   border: 1px solid #ccc;
